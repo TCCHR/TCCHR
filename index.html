@@ -1,112 +1,1149 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>昶青考核管理系統</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet">
-  <!-- Bootstrap 5 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-      /* ==== Global Glassmorphism Theme ==== */
-      :root{
-        --glass-bg: rgba(255,255,255,0.25);
-        --glass-border: rgba(255,255,255,0.4);
-        --glass-shadow: rgba(31,38,135,0.2);
-        --primary: #4e9eff;
-        --primary-dark: #3a74c7;
-      }
-      body{
-        min-height:100vh;
-        background: radial-gradient(circle at top left, #a8d8ff 0%, #e7f0ff 50%, #ffffff 100%);
-        font-family:'Poppins',sans-serif;
-        display:flex;
-        align-items:flex-start;
-        justify-content:center;
-        padding-top:5rem;
-      }
-      .glass-card{
-        background:var(--glass-bg);
-        border:1px solid var(--glass-border);
-        box-shadow:0 8px 32px 0 var(--glass-shadow);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius:1.5rem;
-      }
-      .brand-gradient{
-        background:linear-gradient(135deg,#4e9eff 0%, #6fa8ff 50%, #9cc6ff 100%);
-        -webkit-background-clip:text;
-        -webkit-text-fill-color:transparent;
-      }
-      /* buttons */
-      .btn-brand{
-        background-color:var(--primary);
-        border:none;
-        transition:all .25s ease;
-      }
-      .btn-brand:hover{
-        background-color:var(--primary-dark);
-        transform:translateY(-2px);
-      }
-  </style>
-</head>
-<body>
-  <!-- Navigation -->
-  <nav class="navbar fixed-top navbar-light bg-transparent">
-     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1 fw-bold brand-gradient">昶青考核管理系統</span>
-     </div>
-  </nav>
+  <head>
+<!-- === Shim: google.script.run -> REST fetch, for GitHub Pages === -->
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyq6a5ngVyC6gtvx6BxofPm2nV8EziRyzuVu9CHS4CUbZdIMQj33V_MRPKwGMMlmOhe/exec';   // ← 換成 Web App /exec
+async function api(action, payload = {}) {
+  payload.action = action;
+  const body = new URLSearchParams(payload).toString();
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body
+  });
+  return res.json();
+}
 
-  <!-- Login Section -->
-  <section id="loginSection" class="glass-card p-4 shadow-lg" style="max-width:420px;width:90%;">
-      <h3 class="text-center mb-4">員工登入</h3>
-      <form id="loginForm">
-          <div class="mb-3">
-              <label for="loginAccount" class="form-label">員工編號</label>
-              <input type="text" class="form-control" id="loginAccount" placeholder="請輸入員工編號" required>
-          </div>
-          <div class="mb-4">
-              <label for="loginPassword" class="form-label">密碼 (身分證字號)</label>
-              <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼" required>
-          </div>
-          <button type="submit" class="btn btn-brand w-100 py-2 fw-semibold">登入</button>
-      </form>
-      <div id="loginError" class="mt-3 text-danger text-center d-none">帳號或密碼錯誤</div>
-  </section>
-
-  <!-- Placeholder for other dynamic sections (notice, dashboard, evaluations ... ) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    /* ======= Minimal example of replacing google.script.run when hosting externally =======
-       If you keep this HTML in Apps Script (HtmlService), google.script.run still works.
-       If you plan to host on GitHub Pages, create REST endpoints in Apps Script and call them via fetch().
-    */
-    async function callLogin(){
-      const payload = {
-        account: document.getElementById('loginAccount').value.trim(),
-        password: document.getElementById('loginPassword').value.trim()
+/* 模擬 google.script.run 讓既有程式碼無須改動 */
+window.google = { script: {} };
+window.google.script.run = new Proxy(function(){}, {
+  get(target, prop){
+    if (prop === 'withSuccessHandler'){
+      return function(cb){
+        return new Proxy({}, {
+          get(t, fn) {
+            return (...args) => {
+              const payload = args[0] || {};
+              return api(fn, typeof payload === 'object' ? payload : {data: payload}).then(cb);
+            };
+          }
+        });
       };
-      // Example URL of your deployed Apps Script Web App (execute-as-me, access-anyone):
-const url = 'https://script.google.com/macros/s/AKfycbyq6a5ngVyC6gtvx6BxofPm2nV8EziRyzuVu9CHS4CUbZdIMQj33V_MRPKwGMMlmOhe/exec';
-
-      const res = await fetch(url,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(payload)
-      });
-      return res.json();
     }
-    document.getElementById('loginForm').addEventListener('submit',async(e)=>{
-      e.preventDefault();
-      const result = await callLogin();
-      if(result.success){
-        // TODO: redirect or build dashboard
-      }else{
-        document.getElementById('loginError').classList.remove('d-none');
+    /* 無 successHandler 直接呼叫 */
+    return (...args) => {
+      const payload = args[0] || {};
+      return api(prop, typeof payload === 'object' ? payload : {data: payload});
+    };
+  }
+});
+</script>
+<!-- === End Shim === -->
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>昶青考核管理系統</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet" />
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+      body {
+        background: #f5f7fa;
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding-top: 60px;
       }
-    });
-  </script>
-</body>
+      .navbar {
+        background-color: #2C3E50;
+      }
+      .navbar-brand,
+      .navbar-nav .nav-link {
+        color: #ecf0f1 !important;
+        font-weight: 500;
+      }
+      .container {
+        max-width: 960px;
+        margin-top: 40px;
+      }
+      .card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        background-color: #fff;
+        transition: transform 0.3s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+      }
+      .section { display: none; }
+      h3, h4 { font-weight: 600; }
+      .btn-custom {
+        border-radius: 50px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: background-color 0.3s, transform 0.2s;
+      }
+      .btn-custom:hover { transform: scale(1.05); }
+      .btn-primary { background-color: #3498db; border: none; }
+      .btn-success { background-color: #2ecc71; border: none; }
+      .btn-danger { background-color: #e74c3c; border: none; }
+      .btn-warning { background-color: #f1c40f; border: none; color: #fff; }
+      .btn-info { background-color: #1abc9c; border: none; }
+      .btn-dark { background-color: #34495e; border: none; }
+      .btn-secondary { background-color: #95a5a6; border: none; }
+      input[type="text"], input[type="password"] {
+        border-radius: 5px;
+        border: 1px solid #bdc3c7;
+        padding: 10px;
+      }
+      input[type="radio"] {
+        width: 20px;
+        height: 20px;
+      }
+      table th, table td { vertical-align: middle !important; }
+      .totalDisplay {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #e67e22;
+      }
+      /* 美化登入頁面 */
+      #loginSection .card {
+        max-width: 400px;
+        margin: auto;
+      }
+      /* 考核須知頁面 */
+      #noticeSection .card {
+        max-width: 700px;
+        margin: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 導覽列 -->
+    <nav class="navbar fixed-top navbar-expand-lg">
+      <a class="navbar-brand" href="#">昶青考核管理系統</a>
+    </nav>
+
+    <div class="container">
+      <!-- 登入區 -->
+      <div id="loginSection" class="section" style="display: block;">
+        <div class="card p-4">
+          <h3 class="text-center mb-4">員工登入</h3>
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="loginAccount">員工編號</label>
+              <input type="text" class="form-control" id="loginAccount" placeholder="請輸入員工編號" required />
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">密碼 (身分證字號)</label>
+              <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-custom btn-block">登入</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 考核須知區 (登入後跳出) -->
+      
+    <div id="changePasswordSection" class="section">
+      <div class="card p-4" style="max-width:400px;margin:auto;">
+        <h3 class="text-center mb-4">首次登入 — 變更密碼</h3>
+        <form id="changePasswordForm">
+          <div class="form-group">
+            <label>新密碼</label>
+            <input type="password" id="newPassword" class="form-control" required />
+          </div>
+          <div class="form-group">
+            <label>再次輸入新密碼</label>
+            <input type="password" id="confirmPassword" class="form-control" required />
+          </div>
+          <button type="submit" class="btn btn-success btn-custom btn-block">確認修改</button>
+        </form>
+      </div>
+    </div>
+    <div id="noticeSection" class="section">
+        <div class="card p-4">
+          <h3 class="text-center mb-4">員工考核須知</h3>
+          <div class="mb-4">
+            <ul>
+              <li>評核期間：113 年 11 月 01 日 ~ 114 年 04 月 30 日</li>
+            </ul>
+            <p>【考核成績】</p>
+             <ul>
+              <li>工作產出表(10%)：工作能力及發展性(主管產出評核、員工產出評核)。</li>
+              <li>考績評分表(10%)：工作態度及表現(自我評核、部門評核、同職評核、主管評核)。</li>
+              <li>配合度(20%)：出缺勤(遲到、早退、事假、病假、曠職、缺補卡)。</li>
+              <li>績效(50%)：績效指標表現。</li>
+              <li>其他(10%)：獎懲、訓練時數、缺件資料等。</li> 
+            </ul>
+            <p>【注意事項，填寫前務必詳細閱讀】</p>
+             <ul>
+              <li>每份考核表上皆有被評核人之姓名資料，評核前請先確認相關資料後再做評核，如有疑慮請立即向人資部反應，感謝您的配合。</li>
+              <li>此份考核表為人資部計算考核成績用，請務必依照被評核人之實際工作表現狀況評分。</li>
+              <li>為確保評核公平並公正，請勿對外揭露考核分數及評核對象。</li>
+              <li>所有評核表單提交後，資料將無法修改，請務必確認後再提交。</li>
+            </ul>
+            <p>若有疑問，請洽詢人資部。</p>
+          </div>
+          <div class="text-center">
+            <button id="confirmNoticeBtn" class="btn btn-success btn-custom">確認並進入系統</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 控制台 -->
+      <div id="dashboard" class="section">
+        <div class="card p-4 text-center">
+          <h3 id="welcomeDashboard"></h3>
+          <div class="mt-4">
+            <button id="selfAssessmentBtn" class="btn btn-success btn-custom">自我評核</button>
+            <button id="subordinateEvalBtn" class="btn btn-info btn-custom">部門評核</button>
+            <button id="peerEvalBtn" class="btn btn-warning btn-custom">同職評核</button>
+            <button id="designatedEvalBtn" class="btn btn-danger btn-custom">主管評核</button>
+            <button id="supervisorEvalBtn" class="btn btn-primary btn-custom">主管產出評核</button>
+            <button id="employeeEvalBtn" class="btn btn-dark btn-custom">員工產出評核</button>
+            <button id="logoutBtn" class="btn btn-secondary btn-custom">登出</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 自我評核區 -->
+      <div id="selfAssessmentSection" class="section">
+        <div class="card p-4">
+          <h3 class="text-center mb-4">自我評核</h3>
+          <form id="selfAssessmentForm">
+            <div class="form-row mb-3">
+              <div class="col-md-3">
+                <label>員工編號</label>
+                <input type="text" class="form-control" id="empId" name="empId" readonly />
+              </div>
+              <div class="col-md-3">
+                <label>部門</label>
+                <input type="text" class="form-control" id="dept" name="dept" readonly />
+              </div>
+              <div class="col-md-3">
+                <label>中文姓名</label>
+                <input type="text" class="form-control" id="name" name="name" readonly />
+              </div>
+              <div class="col-md-3">
+                <label>職稱</label>
+                <input type="text" class="form-control" id="title" name="title" readonly />
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead class="thead-light">
+                  <tr>
+                    <th>評核項目</th>
+                    <th class="text-center">1分</th>
+                    <th class="text-center">2分</th>
+                    <th class="text-center">3分</th>
+                    <th class="text-center">4分</th>
+                    <th class="text-center">5分</th>
+                  </tr>
+                </thead>
+                <tbody id="selfAssessmentBody">
+                  <!-- 由 initSelfAssessmentTable() 動態產生 -->
+                </tbody>
+              </table>
+            </div>
+            <div class="text-right mb-3">
+              <span>總分： <span id="selfTotalDisplayBottom" class="totalDisplay">0</span></span>
+            </div>
+            <div id="selfSubmitArea">
+              <button type="submit" class="btn btn-success btn-custom btn-block">提交自評</button>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
+            <div id="selfResult" class="mt-3"></div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 部門評核區 (批次填寫) -->
+      <div id="subordinateEvaluationSection" class="section">
+        <div id="subordinateContainer">
+          <!-- 批次部門評核表單將動態載入於此 -->
+        </div>
+        <button class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
+      </div>
+
+      <!-- 同職評核區 (維持原狀) -->
+      <div id="peerEvaluationSection" class="section">
+        <div id="peerContainer">
+          <!-- 同職評核卡片將動態產生於此 -->
+        </div>
+        <button class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
+      </div>
+
+      <!-- 主管評核區 (維持原狀) -->
+      <div id="designatedEvaluationSection" class="section">
+        <div id="designatedContainer">
+          <!-- 主管評核卡片將動態產生於此 -->
+        </div>
+        <button class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
+      </div>
+
+      <!-- 主管產出評核區 (批次填寫) -->
+      <div id="supervisorEvaluationSection" class="section">
+        <div id="supervisorContainer">
+          <!-- 批次主管產出評核表單將動態載入於此 -->
+        </div>
+        <button class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
+      </div>
+
+      <!-- 員工產出評核區 (批次填寫) -->
+      <div id="employeeEvaluationSection" class="section">
+        <div id="employeeContainer">
+          <!-- 批次員工產出評核表單將動態載入於此 -->
+        </div>
+        <button class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
+      </div>
+    </div>
+
+    <!-- jQuery, Popper.js 與 Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      var currentUser = null;
+
+      function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(function(el) {
+          el.style.display = 'none';
+        });
+        var target = document.getElementById(sectionId);
+        if (target) target.style.display = 'block';
+      }
+
+      /* ==============================
+         自我評核相關 (維持原狀)
+      ============================== */
+      var selfItems = [
+        "專業能力", "專業知識", "執行力", "應對能力", "靈活度", "情緒管理",
+        "團隊協作", "溝通協調", "人群關係", "言行品德", "信賴度", "向心力",
+        "團隊榮譽感", "誠實守信", "工作操守", "工作熱忱", "責任感", "積極度",
+        "細心度", "表達能力"
+      ];
+      function initSelfAssessmentTable() {
+        var tbody = document.getElementById("selfAssessmentBody");
+        if (!tbody) { console.error("找不到 selfAssessmentBody"); return; }
+        var html = "";
+        for (var i = 0; i < selfItems.length; i++) {
+          html += "<tr>";
+          html += "<td>" + (i+1) + ". " + selfItems[i] + "</td>";
+          for (var j = 1; j <= 5; j++) {
+            html += '<td class="text-center"><input type="radio" name="selfScore' + (i+1) + '" value="' + j + '" ' + (j===1 ? "required" : "") + '></td>';
+          }
+          html += "</tr>";
+        }
+        tbody.innerHTML = html;
+        document.querySelectorAll('input[name^="selfScore"]').forEach(function(input) {
+          input.addEventListener("change", updateSelfTotal);
+        });
+      }
+      function updateSelfTotal() {
+        var total = 0;
+        for (var i = 0; i < selfItems.length; i++) {
+          var checked = document.querySelector('input[name="selfScore' + (i+1) + '"]:checked');
+          if (checked) total += parseInt(checked.value);
+        }
+        document.getElementById("selfTotalDisplayBottom").innerText = total;
+      }
+      function loadSelfEvaluationForm() {
+        google.script.run.withSuccessHandler(function(completed) {
+          if (completed) {
+            google.script.run.withSuccessHandler(function(data) {
+              document.getElementById("empId").value = data[0];
+              document.getElementById("dept").value = data[1];
+              document.getElementById("name").value = data[2];
+              document.getElementById("title").value = data[3];
+              for (var i = 0; i < selfItems.length; i++) {
+                var score = data[i+4];
+                var radios = document.getElementsByName("selfScore" + (i+1));
+                radios.forEach(function(radio) {
+                  if (radio.value == score) { radio.checked = true; }
+                  radio.disabled = true;
+                });
+              }
+              document.getElementById("selfTotalDisplayBottom").innerText = data[24];
+              document.getElementById("selfResult").innerHTML = "<div class='alert alert-success'>自我評核已完成 (總分：" + data[24] + ")</div>";
+              document.getElementById("selfSubmitArea").style.display = "none";
+            }).getSelfEvaluationData(currentUser.empId);
+          }
+        }).isSelfEvaluationCompleted(currentUser.empId);
+      }
+
+      /* ==============================
+         共用：建立批次評核卡片 (不含提交按鈕)
+      ============================== */
+      function buildBatchEvaluationCard(evalType, item, index, itemsArray, scoreOptions) {
+        var evalTypeNoSpace = evalType.replace(/\s/g, "");
+        var cardHtml = '<div class="card p-4 evaluation-card" data-index="'+index+'">'+
+          '<h3 class="text-center mb-4">'+evalType+'</h3>'+
+          '<div class="form-row mb-3">'+
+            '<div class="col-md-3">'+
+              '<label>被評核員工編號</label>'+
+              '<input type="text" class="form-control" value="'+item.evaluateeId+'" readonly>'+
+              '<input type="hidden" name="evaluateeId_'+index+'" value="'+item.evaluateeId+'">'+
+            '</div>'+
+            '<div class="col-md-3">'+
+              '<label>部門</label>'+
+              '<input type="text" class="form-control" value="'+item.evaluateeDept+'" readonly>'+
+              '<input type="hidden" name="evaluateeDept_'+index+'" value="'+item.evaluateeDept+'">'+
+            '</div>'+
+            '<div class="col-md-3">'+
+              '<label>中文姓名</label>'+
+              '<input type="text" class="form-control" value="'+item.evaluateeName+'" readonly>'+
+              '<input type="hidden" name="evaluateeName_'+index+'" value="'+item.evaluateeName+'">'+
+            '</div>'+
+            '<div class="col-md-3">'+
+              '<label>職稱</label>'+
+              '<input type="text" class="form-control" value="'+item.evaluateeTitle+'" readonly>'+
+              '<input type="hidden" name="evaluateeTitle_'+index+'" value="'+item.evaluateeTitle+'">'+
+            '</div>'+
+          '</div>'+
+          '<div class="table-responsive">'+
+            '<table class="table table-bordered">'+
+              '<thead class="thead-light"><tr>'+
+                '<th>評核項目</th>';
+        for(var k=0; k<scoreOptions.length; k++){
+          cardHtml += '<th class="text-center">'+scoreOptions[k]+'分</th>';
+        }
+        cardHtml += '</tr></thead><tbody>';
+        for(var i=0; i<itemsArray.length; i++){
+          cardHtml += '<tr>'+
+            '<td>'+(i+1)+'. '+itemsArray[i]+'</td>';
+          for(var j=0; j<scoreOptions.length; j++){
+            cardHtml += '<td class="text-center"><input type="radio" name="'+evalTypeNoSpace+'Score_'+index+'_'+(i+1)+'" value="'+scoreOptions[j]+'" required></td>';
+          }
+          cardHtml += '</tr>';
+        }
+        cardHtml += '</tbody></table></div>'+
+        '<div class="text-right mb-3">'+
+          '<span>總分： <span id="'+evalTypeNoSpace+'Total_'+index+'" class="totalDisplay">0</span></span>'+
+        '</div>'+
+        '<div class="evaluation-status" id="'+evalTypeNoSpace+'Status_'+index+'"></div>'+
+        '</div>';
+        return cardHtml;
+      }
+
+      /* ==============================
+         更新批次評核卡片的總分
+      ============================== */
+      function updateBatchTotal(evalType, index, itemsArray, scoreOptions) {
+        var evalTypeNoSpace = evalType.replace(/\s/g, "");
+        var total = 0;
+        for(var i=0; i<itemsArray.length; i++){
+          var radios = document.getElementsByName(evalTypeNoSpace+'Score_'+index+'_'+(i+1));
+          for(var j=0; j<radios.length; j++){
+            if(radios[j].checked){
+              total += parseInt(radios[j].value);
+            }
+          }
+        }
+        document.getElementById(evalTypeNoSpace+'Total_'+index).innerText = total;
+      }
+
+      /* ==============================
+         部門評核批次填寫 (優化版)
+      ============================== */
+      var subordinateSubItems = ["專業知識", "情緒管理", "溝通協調", "人群關係", "言行品德",
+                                 "信賴度", "向心力", "團隊榮譽感", "工作操守", "工作熱忱"];
+      var subordinateScoreOptions = [2,6,8,10];
+      function loadBatchDepartmentEvaluations() {
+        google.script.run.withSuccessHandler(function(list){
+          var container = document.getElementById("subordinateContainer");
+          var formHtml = '<form id="batchDepartmentForm">';
+          if(list.length === 0){
+            formHtml += "<div class='alert alert-info'>無部門評核對象。</div>";
+          } else {
+            for(var i=0; i<list.length; i++){
+              formHtml += buildBatchEvaluationCard("部門評核", list[i], i, subordinateSubItems, subordinateScoreOptions);
+            }
+            formHtml += '<button type="submit" class="btn btn-success btn-custom btn-block">提交所有部門評核</button>';
+          }
+          formHtml += '</form>';
+          container.innerHTML = formHtml;
+          // 為每個評核卡片內的單選按鈕加上更新總分事件及檢查是否已完成
+          for(let i=0; i<list.length; i++){
+            (function(index){
+              var evalType = "部門評核";
+              var card = container.querySelectorAll(".evaluation-card")[index];
+              var radios = card.querySelectorAll('input[type="radio"]');
+              radios.forEach(function(radio){
+                radio.addEventListener("change", function(){ updateBatchTotal(evalType, index, subordinateSubItems, subordinateScoreOptions); });
+              });
+              // 檢查是否已完成
+              google.script.run.withSuccessHandler(function(completed){
+                if(completed){
+                  google.script.run.withSuccessHandler(function(record){
+                    for(var j=0; j<subordinateSubItems.length; j++){
+                      var score = record[j+7];
+                      var radios = card.querySelectorAll('input[name="部門評核Score_'+index+'_'+(j+1)+'"]');
+                      radios.forEach(function(radio){
+                        if(radio.value == score) { radio.checked = true; }
+                        radio.disabled = true;
+                      });
+                    }
+                    card.querySelector("#部門評核Total_"+index).innerText = record[17];
+                    card.querySelector(".evaluation-status").innerHTML = "<div class='alert alert-success'>部門評核已完成 (總分："+record[17]+")</div>";
+                  }).getSubordinateEvaluationData(list[index].evaluatorId, list[index].evaluateeId);
+                }
+              }).isSubordinateEvaluationCompleted(list[i].evaluatorId, list[i].evaluateeId);
+            })(i);
+          }
+          // 批次表單提交事件
+          document.getElementById("batchDepartmentForm").addEventListener("submit", function(e){
+            e.preventDefault();
+            var evaluations = [];
+            var cards = container.querySelectorAll(".evaluation-card");
+            cards.forEach(function(card, index){
+              if(card.querySelector(".evaluation-status").innerText.indexOf("已完成") !== -1) return;
+              var formData = {};
+              for(var j=0; j<subordinateSubItems.length; j++){
+                var radios = card.querySelectorAll('input[name="部門評核Score_'+index+'_'+(j+1)+'"]');
+                var selectedValue = "";
+                radios.forEach(function(radio){
+                  if(radio.checked) { selectedValue = radio.value; }
+                });
+                formData["部門評核Score"+(j+1)] = selectedValue || "0";
+              }
+              var total = card.querySelector("#部門評核Total_"+index).innerText;
+              formData.totalScore = total;
+              formData.evaluatorId = currentUser.empId;
+              formData.evaluatorName = currentUser.name;
+              formData.evaluatorTitle = currentUser.title;
+              formData.evaluateeId = card.querySelector('input[name="evaluateeId_'+index+'"]').value;
+              formData.evaluateeDept = card.querySelector('input[name="evaluateeDept_'+index+'"]').value;
+              formData.evaluateeName = card.querySelector('input[name="evaluateeName_'+index+'"]').value;
+              formData.evaluateeTitle = card.querySelector('input[name="evaluateeTitle_'+index+'"]').value;
+              evaluations.push(formData);
+            });
+            if(evaluations.length === 0) {
+              alert("所有部門評核均已完成或無填寫資料。");
+              return;
+            }
+            google.script.run.withSuccessHandler(function(output){
+              alert("部門評核提交成功！");
+              showSection("dashboard");
+            }).submitSubordinateEvaluation(evaluations);
+          });
+          showSection("subordinateEvaluationSection");
+        }).getSubordinateEvaluationList(currentUser.empId);
+      }
+
+      /* ==============================
+         同職評核 (維持原狀)
+      ============================== */
+      var peerItems = [
+        "專業能力", "專業知識", "執行力", "應對能力", "靈活度", "情緒管理",
+        "團隊協作", "溝通協調", "人群關係", "言行品德", "信賴度", "向心力",
+        "團隊榮譽感", "誠實守信", "工作操守", "工作熱忱", "責任感", "積極度",
+        "細心度", "表達能力"
+      ];
+      var peerScoreOptions = [1,2,3,4,5];
+      function updatePeerTotal(idx) {
+        var total = 0;
+        for (var i = 1; i <= peerItems.length; i++) {
+          var checked = document.querySelector(`#同職評核EvalForm_${idx} input[name="同職評核Score${i}"]:checked`);
+          if (checked) total += parseInt(checked.value);
+        }
+        document.getElementById("同職評核TotalDisplay_" + idx).innerText = total;
+      }
+      function loadPeerEvaluations() {
+        google.script.run.withSuccessHandler(function(list) {
+          var container = document.getElementById("peerContainer");
+          container.innerHTML = "";
+          if (list.length === 0) {
+            container.innerHTML = "<div class='alert alert-info'>無同職評核對象。</div>";
+          } else {
+            list.forEach(function(item, index) {
+              // 產生單筆同職評核卡片 (與原版相同)
+              var cardHtml = '<div class="card p-4" id="同職評核Card_' + index + '">' +
+                '<h3 class="text-center mb-4">同職評核</h3>' +
+                '<form id="同職評核EvalForm_' + index + '">' +
+                  '<div class="form-row mb-3">' +
+                    '<div class="col-md-3">' +
+                      '<label>員工編號</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeId + '" readonly />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                      '<label>部門</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeDept + '" readonly />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                      '<label>中文姓名</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeName + '" readonly />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                      '<label>職稱</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeTitle + '" readonly />' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="table-responsive">' +
+                    '<table class="table table-bordered">' +
+                      '<thead class="thead-light"><tr>' +
+                        '<th>評核項目</th>';
+              for (var k = 0; k < peerScoreOptions.length; k++) {
+                cardHtml += '<th class="text-center">' + peerScoreOptions[k] + '分</th>';
+              }
+              cardHtml += '</tr></thead><tbody>';
+              for (var i = 0; i < peerItems.length; i++) {
+                cardHtml += '<tr>' +
+                  '<td>' + (i + 1) + '. ' + peerItems[i] + '</td>';
+                for (var j = 0; j < peerScoreOptions.length; j++) {
+                  cardHtml += '<td class="text-center"><input type="radio" name="同職評核Score' + (i + 1) + '" value="' + peerScoreOptions[j] + '" required></td>';
+                }
+                cardHtml += '</tr>';
+              }
+              cardHtml += '</tbody></table></div>' +
+                '<div class="text-right mb-3">' +
+                  '<span>總分： <span id="同職評核TotalDisplay_' + index + '" class="totalDisplay">0</span></span>' +
+                '</div>' +
+                '<button type="submit" class="btn btn-success btn-custom btn-block">提交同職評核</button>' +
+                '<div id="同職評核Result_' + index + '" class="mt-3"></div>' +
+                '</form>' +
+                '</div>';
+              container.insertAdjacentHTML("beforeend", cardHtml);
+              var form = document.getElementById("同職評核EvalForm_" + index);
+              form.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+                radio.addEventListener("change", function() { updatePeerTotal(index); });
+              });
+              // 若已完成則讀取資料並禁用
+              google.script.run.withSuccessHandler(function(completed) {
+                if (completed) {
+                  google.script.run.withSuccessHandler(function(record) {
+                    for (var i = 0; i < peerItems.length; i++) {
+                      var score = record[i+7];
+                      var radios = form.querySelectorAll('input[name="同職評核Score' + (i+1) + '"]');
+                      radios.forEach(function(radio) {
+                        if (radio.value == score) { radio.checked = true; }
+                        radio.disabled = true;
+                      });
+                    }
+                    document.getElementById("同職評核TotalDisplay_" + index).innerText = record[27];
+                    document.getElementById("同職評核Result_" + index).innerHTML = "<div class='alert alert-success'>同職評核已完成 (總分：" + record[27] + ")</div>";
+                    form.querySelector("button").style.display = "none";
+                  }).getPeerEvaluationData(item.evaluatorId, item.evaluateeId);
+                }
+              }).isPeerEvaluationCompleted(item.evaluatorId, item.evaluateeId);
+              form.addEventListener("submit", function(e) {
+                if (!this.checkValidity()) { this.reportValidity(); return; }
+                e.preventDefault();
+                this.querySelector("button").disabled = true;
+                var formData = {};
+                new FormData(this).forEach(function(value, key) { formData[key] = value; });
+                for (var i = 1; i <= peerItems.length; i++) {
+                  if (!formData["同職評核Score" + i]) { formData["同職評核Score" + i] = "0"; }
+                }
+                var total = document.getElementById("同職評核TotalDisplay_" + index).innerText;
+                formData.totalScore = total;
+                formData.evaluatorId = currentUser.empId;
+                formData.evaluatorName = currentUser.name;
+                formData.evaluatorTitle = currentUser.title;
+                formData.evaluateeId = item.evaluateeId;
+                formData.evaluateeDept = item.evaluateeDept;
+                formData.evaluateeName = item.evaluateeName;
+                formData.evaluateeTitle = item.evaluateeTitle;
+                google.script.run.withSuccessHandler(function(output) {
+                  document.getElementById("同職評核Result_" + index).innerHTML = "<div class='alert alert-success'>提交成功！總分：" + total + "</div>";
+                  showSection("dashboard");
+                }).submitPeerEvaluation([formData]);
+              });
+            });
+          }
+          showSection("peerEvaluationSection");
+        }).getPeerEvaluationList(currentUser.empId);
+      }
+
+      /* ==============================
+         主管評核 (維持原狀)
+      ============================== */
+      var designatedItems = [
+        "專業能力", "專業知識", "執行力", "應對能力", "靈活度", "情緒管理",
+        "團隊協作", "溝通協調", "人群關係", "言行品德", "信賴度", "向心力",
+        "團隊榮譽感", "誠實守信", "工作操守", "工作熱忱", "責任感", "授權指導",
+        "細心度", "表達能力"
+      ];
+      var designatedScoreOptions = [1,2,3,4,5];
+      function updateDesignatedTotal(idx) {
+        var total = 0;
+        for (var i = 1; i <= designatedItems.length; i++) {
+          var checked = document.querySelector(`#主管評核EvalForm_${idx} input[name="主管評核Score${i}"]:checked`);
+          if (checked) total += parseInt(checked.value);
+        }
+        document.getElementById("主管評核TotalDisplay_" + idx).innerText = total;
+      }
+      function loadDesignatedEvaluations() {
+        google.script.run.withSuccessHandler(function(list) {
+          var container = document.getElementById("designatedContainer");
+          container.innerHTML = "";
+          if (list.length === 0) {
+            container.innerHTML = "<div class='alert alert-info'>無主管評核對象。</div>";
+          } else {
+            list.forEach(function(item, index) {
+              var cardHtml = '<div class="card p-4" id="主管評核Card_' + index + '">' +
+                '<h3 class="text-center mb-4">主管評核</h3>' +
+                '<form id="主管評核EvalForm_' + index + '">' +
+                  '<div class="form-row mb-3">' +
+                    '<div class="col-md-3">' +
+                      '<label>員工編號</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeId + '" readonly />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                      '<label>部門</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeDept + '" readonly />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                      '<label>中文姓名</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeName + '" readonly />' +
+                    '</div>' +
+                    '<div class="col-md-3">' +
+                      '<label>職稱</label>' +
+                      '<input type="text" class="form-control" value="' + item.evaluateeTitle + '" readonly />' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="table-responsive">' +
+                    '<table class="table table-bordered">' +
+                      '<thead class="thead-light"><tr>' +
+                        '<th>評核項目</th>';
+              for (var k = 0; k < designatedScoreOptions.length; k++) {
+                cardHtml += '<th class="text-center">' + designatedScoreOptions[k] + '分</th>';
+              }
+              cardHtml += '</tr></thead><tbody>';
+              for (var i = 0; i < designatedItems.length; i++) {
+                cardHtml += '<tr>' +
+                  '<td>' + (i + 1) + '. ' + designatedItems[i] + '</td>';
+                for (var j = 0; j < designatedScoreOptions.length; j++) {
+                  cardHtml += '<td class="text-center"><input type="radio" name="主管評核Score' + (i + 1) + '" value="' + designatedScoreOptions[j] + '" required></td>';
+                }
+                cardHtml += '</tr>';
+              }
+              cardHtml += '</tbody></table></div>' +
+                '<div class="text-right mb-3">' +
+                  '<span>總分： <span id="主管評核TotalDisplay_' + index + '" class="totalDisplay">0</span></span>' +
+                '</div>' +
+                '<button type="submit" class="btn btn-success btn-custom btn-block">提交主管評核</button>' +
+                '<div id="主管評核Result_' + index + '" class="mt-3"></div>' +
+                '</form>' +
+                '</div>';
+              container.insertAdjacentHTML("beforeend", cardHtml);
+              var form = document.getElementById("主管評核EvalForm_" + index);
+              form.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+                radio.addEventListener("change", function() { updateDesignatedTotal(index); });
+              });
+              google.script.run.withSuccessHandler(function(completed) {
+                if (completed) {
+                  google.script.run.withSuccessHandler(function(record) {
+                    for (var i = 0; i < designatedItems.length; i++) {
+                      var score = record[i+7];
+                      var radios = form.querySelectorAll('input[name="主管評核Score' + (i+1) + '"]');
+                      radios.forEach(function(radio) {
+                        if (radio.value == score) { radio.checked = true; }
+                        radio.disabled = true;
+                      });
+                    }
+                    document.getElementById("主管評核TotalDisplay_" + index).innerText = record[27];
+                    document.getElementById("主管評核Result_" + index).innerHTML = "<div class='alert alert-success'>主管評核已完成 (總分：" + record[27] + ")</div>";
+                    form.querySelector("button").style.display = "none";
+                  }).getDesignatedEvaluationData(item.evaluatorId, item.evaluateeId);
+                }
+              }).isDesignatedEvaluationCompleted(item.evaluatorId, item.evaluateeId);
+              form.addEventListener("submit", function(e) {
+                if (!this.checkValidity()) { this.reportValidity(); return; }
+                e.preventDefault();
+                this.querySelector("button").disabled = true;
+                var formData = {};
+                new FormData(this).forEach(function(value, key) { formData[key] = value; });
+                for (var i = 1; i <= designatedItems.length; i++) {
+                  if (!formData["主管評核Score" + i]) { formData["主管評核Score" + i] = "0"; }
+                }
+                var total = document.getElementById("主管評核TotalDisplay_" + index).innerText;
+                formData.totalScore = total;
+                formData.evaluatorId = currentUser.empId;
+                formData.evaluatorName = currentUser.name;
+                formData.evaluatorTitle = currentUser.title;
+                formData.evaluateeId = item.evaluateeId;
+                formData.evaluateeDept = item.evaluateeDept;
+                formData.evaluateeName = item.evaluateeName;
+                formData.evaluateeTitle = item.evaluateeTitle;
+                google.script.run.withSuccessHandler(function(output) {
+                  document.getElementById("主管評核Result_" + index).innerHTML = "<div class='alert alert-success'>提交成功！總分：" + total + "</div>";
+                  showSection("dashboard");
+                }).submitDesignatedEvaluation([formData]);
+              });
+            });
+          }
+          showSection("designatedEvaluationSection");
+        }).getDesignatedEvaluationList(currentUser.empId);
+      }
+
+      /* ==============================
+         主管產出評核批次填寫 (優化版)
+      ============================== */
+      var supervisorItems = [
+        "工作品質", "工作量", "工作效率", "工作方法", "工作勤惰",
+        "表達能力", "執行能力", "專業能力", "判斷能力", "理解能力",
+        "創新能力", "應變能力", "問題解決能力", "成本意識", "授權指導",
+        "責任感", "積極度", "配合度", "細心度", "抗壓力"
+      ];
+      var supervisorScoreOptions = [1,2,3,4,5];
+      function loadBatchSupervisorEvaluations() {
+        google.script.run.withSuccessHandler(function(list){
+          var container = document.getElementById("supervisorContainer");
+          var formHtml = '<form id="batchSupervisorForm">';
+          if(list.length === 0){
+            formHtml += "<div class='alert alert-info'>無主管產出評核對象。</div>";
+          } else {
+            for(var i=0; i<list.length; i++){
+              formHtml += buildBatchEvaluationCard("主管產出評核", list[i], i, supervisorItems, supervisorScoreOptions);
+            }
+            formHtml += '<button type="submit" class="btn btn-success btn-custom btn-block">提交所有主管產出評核</button>';
+          }
+          formHtml += '</form>';
+          container.innerHTML = formHtml;
+          for(let i=0; i<list.length; i++){
+            (function(index){
+              var evalType = "主管產出評核";
+              var evalTypeNoSpace = evalType.replace(/\s/g, "");
+              var card = container.querySelectorAll(".evaluation-card")[index];
+              var radios = card.querySelectorAll('input[type="radio"]');
+              radios.forEach(function(radio){
+                radio.addEventListener("change", function(){
+                  updateBatchTotal(evalType, index, supervisorItems, supervisorScoreOptions);
+                });
+              });
+              google.script.run.withSuccessHandler(function(completed){
+                if(completed){
+                  google.script.run.withSuccessHandler(function(record){
+                    for(var j=0; j<supervisorItems.length; j++){
+                      var score = record[j+7];
+                      var radios = card.querySelectorAll('input[name="主管產出評核Score_'+index+'_'+(j+1)+'"]');
+                      radios.forEach(function(radio){
+                        if(radio.value == score) { radio.checked = true; }
+                        radio.disabled = true;
+                      });
+                    }
+                    card.querySelector("#主管產出評核Total_"+index).innerText = record[27];
+                    card.querySelector(".evaluation-status").innerHTML = "<div class='alert alert-success'>主管產出評核已完成 (總分："+record[27]+")</div>";
+                  }).getSupervisorEvaluationData(list[index].evaluatorId, list[index].evaluateeId);
+                }
+              }).isSupervisorEvaluationCompleted(list[i].evaluatorId, list[i].evaluateeId);
+            })(i);
+          }
+          document.getElementById("batchSupervisorForm").addEventListener("submit", function(e){
+            e.preventDefault();
+            var evaluations = [];
+            var cards = container.querySelectorAll(".evaluation-card");
+            cards.forEach(function(card, index){
+              if(card.querySelector(".evaluation-status").innerText.indexOf("已完成") !== -1) return;
+              var formData = {};
+              for(var j=0; j<supervisorItems.length; j++){
+                var radios = card.querySelectorAll('input[name="主管產出評核Score_'+index+'_'+(j+1)+'"]');
+                var selectedValue = "";
+                radios.forEach(function(radio){
+                  if(radio.checked) { selectedValue = radio.value; }
+                });
+                formData["主管產出評核評Score"+(j+1)] = selectedValue || "0";
+              }
+              var total = card.querySelector("#主管產出評核Total_"+index).innerText;
+              formData.totalScore = total;
+              formData.evaluatorId = currentUser.empId;
+              formData.evaluatorName = currentUser.name;
+              formData.evaluatorTitle = currentUser.title;
+              formData.evaluateeId = card.querySelector('input[name="evaluateeId_'+index+'"]').value;
+              formData.evaluateeDept = card.querySelector('input[name="evaluateeDept_'+index+'"]').value;
+              formData.evaluateeName = card.querySelector('input[name="evaluateeName_'+index+'"]').value;
+              formData.evaluateeTitle = card.querySelector('input[name="evaluateeTitle_'+index+'"]').value;
+              evaluations.push(formData);
+            });
+            if(evaluations.length === 0) {
+              alert("所有主管產出評核均已完成或無填寫資料。");
+              return;
+            }
+            google.script.run.withSuccessHandler(function(output){
+              alert("主管產出評核提交成功！");
+              showSection("dashboard");
+            }).submitSupervisorEvaluation(evaluations);
+          });
+          showSection("supervisorEvaluationSection");
+        }).getSupervisorEvaluationList(currentUser.empId);
+      }
+
+      /* ==============================
+         員工產出評核批次填寫 (優化版)
+      ============================== */
+      var employeeItems = [
+        "工作品質", "工作量", "工作效率", "工作方法", "工作勤惰",
+        "表達能力", "執行能力", "專業能力", "判斷能力", "理解能力",
+        "創新能力", "應變能力", "問題解決能力", "成本意識", "發展潛力",
+        "責任感", "積極度", "配合度", "細心度", "抗壓力"
+      ];
+      var employeeScoreOptions = [1,2,3,4,5];
+      function loadBatchEmployeeEvaluations() {
+        google.script.run.withSuccessHandler(function(list){
+          var container = document.getElementById("employeeContainer");
+          var formHtml = '<form id="batchEmployeeForm">';
+          if(list.length === 0){
+            formHtml += "<div class='alert alert-info'>無員工產出評核對象。</div>";
+          } else {
+            for(var i=0; i<list.length; i++){
+              formHtml += buildBatchEvaluationCard("員工產出評核", list[i], i, employeeItems, employeeScoreOptions);
+            }
+            formHtml += '<button type="submit" class="btn btn-success btn-custom btn-block">提交所有員工產出評核</button>';
+          }
+          formHtml += '</form>';
+          container.innerHTML = formHtml;
+          for(let i=0; i<list.length; i++){
+            (function(index){
+              var evalType = "員工產出評核";
+              var evalTypeNoSpace = evalType.replace(/\s/g, "");
+              var card = container.querySelectorAll(".evaluation-card")[index];
+              var radios = card.querySelectorAll('input[type="radio"]');
+              radios.forEach(function(radio){
+                radio.addEventListener("change", function(){
+                  updateBatchTotal(evalType, index, employeeItems, employeeScoreOptions);
+                });
+              });
+              google.script.run.withSuccessHandler(function(completed){
+                if(completed){
+                  google.script.run.withSuccessHandler(function(record){
+                    for(var j=0; j<employeeItems.length; j++){
+                      var score = record[j+7];
+                      var radios = card.querySelectorAll('input[name="員工產出評核Score_'+index+'_'+(j+1)+'"]');
+                      radios.forEach(function(radio){
+                        if(radio.value == score) { radio.checked = true; }
+                        radio.disabled = true;
+                      });
+                    }
+                    card.querySelector("#員工產出評核Total_"+index).innerText = record[27];
+                    card.querySelector(".evaluation-status").innerHTML = "<div class='alert alert-success'>員工產出評核已完成 (總分："+record[27]+")</div>";
+                  }).getEmployeeEvaluationData(list[index].evaluatorId, list[index].evaluateeId);
+                }
+              }).isEmployeeEvaluationCompleted(list[i].evaluatorId, list[i].evaluateeId);
+            })(i);
+          }
+          document.getElementById("batchEmployeeForm").addEventListener("submit", function(e){
+            e.preventDefault();
+            var evaluations = [];
+            var cards = container.querySelectorAll(".evaluation-card");
+            cards.forEach(function(card, index){
+              if(card.querySelector(".evaluation-status").innerText.indexOf("已完成") !== -1) return;
+              var formData = {};
+              for(var j=0; j<employeeItems.length; j++){
+                var radios = card.querySelectorAll('input[name="員工產出評核Score_'+index+'_'+(j+1)+'"]');
+                var selectedValue = "";
+                radios.forEach(function(radio){
+                  if(radio.checked) { selectedValue = radio.value; }
+                });
+                formData["員工產出評核評Score"+(j+1)] = selectedValue || "0";
+              }
+              var total = card.querySelector("#員工產出評核Total_"+index).innerText;
+              formData.totalScore = total;
+              formData.evaluatorId = currentUser.empId;
+              formData.evaluatorName = currentUser.name;
+              formData.evaluatorTitle = currentUser.title;
+              formData.evaluateeId = card.querySelector('input[name="evaluateeId_'+index+'"]').value;
+              formData.evaluateeDept = card.querySelector('input[name="evaluateeDept_'+index+'"]').value;
+              formData.evaluateeName = card.querySelector('input[name="evaluateeName_'+index+'"]').value;
+              formData.evaluateeTitle = card.querySelector('input[name="evaluateeTitle_'+index+'"]').value;
+              evaluations.push(formData);
+            });
+            if(evaluations.length === 0) {
+              alert("所有員工產出評核均已完成或無填寫資料。");
+              return;
+            }
+            google.script.run.withSuccessHandler(function(output){
+              alert("員工產出評核提交成功！");
+              showSection("dashboard");
+            }).submitEmployeeEvaluation(evaluations);
+          });
+          showSection("employeeEvaluationSection");
+        }).getEmployeeEvaluationList(currentUser.empId);
+      }
+
+      /* ==============================
+         初始化與事件綁定
+      ============================== */
+      function initPage() {
+      document.getElementById('loginForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var acc = loginAccount.value, pwd = loginPassword.value;
+        google.script.run.withSuccessHandler(function(res){
+          if(!res.success){alert(res.message);return;}
+          currentUser = res.data;
+          if(res.data.firstLogin) showSection('changePasswordSection');
+          else { welcomeDashboard.innerText='歡迎 '+res.data.name; showSection('noticeSection'); }
+        }).loginCheck(acc,pwd);
+      });
+      document.getElementById('changePasswordForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var np=newPassword.value, cp=confirmPassword.value;
+        if(np!==cp){alert('密碼不一致');return;}
+        google.script.run.withSuccessHandler(function(r){
+          if(!r.success){document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').innerText = r.message;return;}
+          alert('修改完成');
+          welcomeDashboard.innerText='歡迎 '+currentUser.name;
+          showSection('noticeSection');
+        }).changePassword(currentUser.empId,np);
+      });
+    
+        var loginForm = document.getElementById("loginForm");
+        if (loginForm) {
+          loginForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            var account = document.getElementById("loginAccount").value;
+            var password = document.getElementById("loginPassword").value;
+            google.script.run.withSuccessHandler(function(result) {
+              if (result.success) {
+                currentUser = result.data;
+                document.getElementById("empId").value = currentUser.empId;
+                document.getElementById("dept").value = currentUser.dept;
+                document.getElementById("name").value = currentUser.name;
+                document.getElementById("title").value = currentUser.title;
+                document.getElementById("welcomeDashboard").innerText = "歡迎 " + currentUser.name;
+                // 登入後先顯示「考核須知」頁面
+                showSection("noticeSection");
+              } else {
+                alert(result.message);
+              }
+            }).loginCheck(account, password);
+          });
+        }
+        var logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", function() {
+            currentUser = null;
+            showSection("loginSection");
+          });
+        }
+        var selfAssessmentBtn = document.getElementById("selfAssessmentBtn");
+        if (selfAssessmentBtn) selfAssessmentBtn.addEventListener("click", function() { loadSelfEvaluationForm(); showSection("selfAssessmentSection"); });
+        var subordinateEvalBtn = document.getElementById("subordinateEvalBtn");
+        if (subordinateEvalBtn) subordinateEvalBtn.addEventListener("click", function() { loadBatchDepartmentEvaluations(); });
+        var peerEvalBtn = document.getElementById("peerEvalBtn");
+        if (peerEvalBtn) peerEvalBtn.addEventListener("click", function() { loadPeerEvaluations(); });
+        var designatedEvalBtn = document.getElementById("designatedEvalBtn");
+        if (designatedEvalBtn) designatedEvalBtn.addEventListener("click", function() { loadDesignatedEvaluations(); });
+        var supervisorEvalBtn = document.getElementById("supervisorEvalBtn");
+        if (supervisorEvalBtn) supervisorEvalBtn.addEventListener("click", function() { loadBatchSupervisorEvaluations(); });
+        var employeeEvalBtn = document.getElementById("employeeEvalBtn");
+        if (employeeEvalBtn) employeeEvalBtn.addEventListener("click", function() { loadBatchEmployeeEvaluations(); });
+        var backButtons = document.querySelectorAll(".backToDashboard");
+        backButtons.forEach(function(btn) {
+          btn.addEventListener("click", function() { showSection("dashboard"); });
+        });
+        // 自我評核送出事件：防止重複提交
+        var selfAssessmentForm = document.getElementById("selfAssessmentForm");
+        if (selfAssessmentForm) {
+          selfAssessmentForm.addEventListener("submit", function(e) {
+            if (!this.checkValidity()) { this.reportValidity(); return; }
+            e.preventDefault();
+            document.querySelector("#selfSubmitArea button").disabled = true;
+            var formData = {};
+            new FormData(this).forEach(function(value, key) { formData[key] = value; });
+            formData.totalScore = document.getElementById("selfTotalDisplayBottom").innerText;
+            google.script.run.withSuccessHandler(function(output) {
+              document.getElementById("selfResult").innerHTML = "<div class='alert alert-success'>自我評核提交成功！總分：" + formData.totalScore + "</div>";
+              document.querySelectorAll('input[name^="selfScore"]').forEach(function(input) { input.disabled = true; });
+              document.getElementById("selfSubmitArea").style.display = "none";
+              showSection("dashboard");
+            }).submitSelfEvaluation(formData);
+          });
+        }
+        // 考核須知確認按鈕
+        var confirmNoticeBtn = document.getElementById("confirmNoticeBtn");
+        if (confirmNoticeBtn) {
+          confirmNoticeBtn.addEventListener("click", function() {
+            showSection("dashboard");
+          });
+        }
+      }
+      window.onload = function() {
+        initPage();
+        initSelfAssessmentTable();
+      };
+    </script>
+  
+    <!-- Error message container for login errors -->
+    <div id="loginError" style="color: red; font-size: 1rem; display: none; text-align: center;"></div>
+    
+    <script>
+      var currentUser = null;
+
+      function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(function(el) {
+          el.style.display = 'none';
+        });
+        var target = document.getElementById(sectionId);
+        if (target) target.style.display = 'block';
+      }
+
+      /* ==============================
+         登入處理與錯誤顯示
+      ============================== */
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var acc = loginAccount.value, pwd = loginPassword.value;
+  google.script.run.withSuccessHandler(function(res) {
+    // 隱藏錯誤訊息容器
+    document.getElementById('loginError').style.display = 'none';
+    
+    if (res.success) {
+      currentUser = res.data;
+      if (res.data.firstLogin) {
+        showSection('changePasswordSection');
+      } else {
+        welcomeDashboard.innerText = '歡迎 ' + res.data.name;
+        showSection('noticeSection');
+      }
+    } else {
+      // 顯示錯誤訊息
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('loginError').innerText = res.message;
+    }
+  }).loginCheck(acc, pwd);
+});
+
+
+      /* ==============================
+         登出/修改密碼後清空帳號與密碼欄位
+      ============================== */
+      function logoutOrChangePassword() {
+        currentUser = null;
+        loginAccount.value = '';
+        loginPassword.value = '';
+        document.getElementById('loginError').style.display = 'none';
+        showSection('loginSection');
+      }
+
+      document.getElementById("logoutBtn").addEventListener("click", logoutOrChangePassword);
+
+      document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var np = newPassword.value, cp = confirmPassword.value;
+        if (np !== cp) {
+          alert('密碼不一致');
+          return;
+        }
+        google.script.run.withSuccessHandler(function(r) {
+          if (!r.success) {
+            document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').innerText = r.message;
+            return;
+          }
+          alert('修改完成');
+          loginAccount.value = '';
+          loginPassword.value = '';
+          document.getElementById('loginError').style.display = 'none';
+          showSection('noticeSection');
+        }).changePassword(currentUser.empId, np);
+      });
+    </script>
+  </body>
 </html>
