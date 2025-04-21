@@ -3,7 +3,8 @@
   <head>
 <!-- === Shim: google.script.run -> REST fetch, for GitHub Pages === -->
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyq6a5ngVyC6gtvx6BxofPm2nV8EziRyzuVu9CHS4CUbZdIMQj33V_MRPKwGMMlmOhe/exec';   // ← 換成 Web App /exec
+const GAS_URL = 'https://tcchr.tcchr-331-333.workers.dev/?url=' + encodeURIComponent('https://script.google.com/macros/s/AKfycbyq6a5ngVyC6gtvx6BxofPm2nV8EziRyzuVu9CHS4CUbZdIMQj33V_MRPKwGMMlmOhe/exec');
+   // ← 換成 Web App /exec
 async function api(action, payload = {}) {
   payload.action = action;
   const body = new URLSearchParams(payload).toString();
