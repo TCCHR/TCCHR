@@ -1,686 +1,112 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>昶青考核管理系統</title>
-  <!-- Bootstrap 4 -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600&display=swap" rel="stylesheet">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body {
-      background: #f5f7fa;
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      padding-top: 60px;
-    }
-    .navbar {
-      background-color: #2C3E50;
-    }
-    .navbar-brand,
-    .navbar-nav .nav-link {
-      color: #ecf0f1 !important;
-      font-weight: 500;
-    }
-    .container {
-      max-width: 960px;
-      margin-top: 40px;
-    }
-    .card {
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-      background-color: #fff;
-      transition: transform 0.3s;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .section { display: none; }
-    h3, h4 { font-weight: 600; }
-    .btn-custom {
-      border-radius: 50px;
-      padding: 10px 20px;
-      font-weight: 500;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-    .btn-custom:hover { transform: scale(1.05); }
-    .btn-primary { background-color: #3498db; border: none; }
-    .btn-success { background-color: #2ecc71; border: none; }
-    .btn-danger { background-color: #e74c3c; border: none; }
-    .btn-warning { background-color: #f1c40f; border: none; color: #fff; }
-    .btn-info { background-color: #1abc9c; border: none; }
-    .btn-dark { background-color: #34495e; border: none; }
-    .btn-secondary { background-color: #95a5a6; border: none; }
-    input[type="text"], input[type="password"] {
-      border-radius: 5px;
-      border: 1px solid #bdc3c7;
-      padding: 10px;
-    }
-    input[type="radio"] {
-      width: 20px;
-      height: 20px;
-    }
-    table th, table td { vertical-align: middle !important; }
-    .totalDisplay {
-      font-size: 1.6rem;
-      font-weight: 600;
-      color: #e67e22;
-    }
-    /* 登入頁面 */
-    #loginSection .card {
-      max-width: 400px;
-      margin: auto;
-    }
-    /* 考核須知頁面 */
-    #noticeSection .card {
-      max-width: 700px;
-      margin: auto;
-    }
+      /* ==== Global Glassmorphism Theme ==== */
+      :root{
+        --glass-bg: rgba(255,255,255,0.25);
+        --glass-border: rgba(255,255,255,0.4);
+        --glass-shadow: rgba(31,38,135,0.2);
+        --primary: #4e9eff;
+        --primary-dark: #3a74c7;
+      }
+      body{
+        min-height:100vh;
+        background: radial-gradient(circle at top left, #a8d8ff 0%, #e7f0ff 50%, #ffffff 100%);
+        font-family:'Poppins',sans-serif;
+        display:flex;
+        align-items:flex-start;
+        justify-content:center;
+        padding-top:5rem;
+      }
+      .glass-card{
+        background:var(--glass-bg);
+        border:1px solid var(--glass-border);
+        box-shadow:0 8px 32px 0 var(--glass-shadow);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius:1.5rem;
+      }
+      .brand-gradient{
+        background:linear-gradient(135deg,#4e9eff 0%, #6fa8ff 50%, #9cc6ff 100%);
+        -webkit-background-clip:text;
+        -webkit-text-fill-color:transparent;
+      }
+      /* buttons */
+      .btn-brand{
+        background-color:var(--primary);
+        border:none;
+        transition:all .25s ease;
+      }
+      .btn-brand:hover{
+        background-color:var(--primary-dark);
+        transform:translateY(-2px);
+      }
   </style>
 </head>
 <body>
-  <!-- 導覽列 -->
-  <nav class="navbar fixed-top navbar-expand-lg">
-    <a class="navbar-brand" href="#">昶青考核管理系統</a>
+  <!-- Navigation -->
+  <nav class="navbar fixed-top navbar-light bg-transparent">
+     <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1 fw-bold brand-gradient">昶青考核管理系統</span>
+     </div>
   </nav>
 
-  <div class="container">
-    <!-- 登入區 -->
-    <div id="loginSection" class="section" style="display: block;">
-      <div class="card p-4">
-        <h3 class="text-center mb-4">員工登入</h3>
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="loginAccount">員工編號</label>
-            <input type="text" class="form-control" id="loginAccount" placeholder="請輸入員工編號" required />
+  <!-- Login Section -->
+  <section id="loginSection" class="glass-card p-4 shadow-lg" style="max-width:420px;width:90%;">
+      <h3 class="text-center mb-4">員工登入</h3>
+      <form id="loginForm">
+          <div class="mb-3">
+              <label for="loginAccount" class="form-label">員工編號</label>
+              <input type="text" class="form-control" id="loginAccount" placeholder="請輸入員工編號" required>
           </div>
-          <div class="form-group">
-            <label for="loginPassword">密碼 (身分證字號)</label>
-            <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼" required />
+          <div class="mb-4">
+              <label for="loginPassword" class="form-label">密碼 (身分證字號)</label>
+              <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼" required>
           </div>
-          <button type="submit" class="btn btn-primary btn-custom btn-block">登入</button>
-        </form>
-      </div>
-    </div>
+          <button type="submit" class="btn btn-brand w-100 py-2 fw-semibold">登入</button>
+      </form>
+      <div id="loginError" class="mt-3 text-danger text-center d-none">帳號或密碼錯誤</div>
+  </section>
 
-    <!-- 考核須知區 (登入後跳出) -->
-    <div id="noticeSection" class="section">
-      <div class="card p-4">
-        <h3 class="text-center mb-4">員工考核須知</h3>
-        <div class="mb-4">
-          <ul>
-            <li>評核期間：113 年 11 月 01 日 ~ 114 年 04 月 30 日</li>
-          </ul>
-          <p>【考核成績】</p>
-          <ul>
-            <li>工作產出表(10%)：工作能力及發展性(主管產出評核、員工產出評核)。</li>
-            <li>考績評分表(10%)：工作態度及表現(自我評核、部門評核、同職評核、主管評核)。</li>
-            <li>配合度(20%)：出缺勤(遲到、早退、事假、病假、曠職、缺補卡)。</li>
-            <li>績效(50%)：績效指標表現。</li>
-            <li>其他(10%)：獎懲、訓練時數、缺件資料等。</li>
-          </ul>
-          <p>【注意事項，填寫前務必詳細閱讀】</p>
-          <ul>
-            <li>每份考核表上皆有被評核人之姓名資料，評核前請先確認，如有疑慮請立即向人資部反應。</li>
-            <li>此份考核表為人資部計算考核成績用，請務必依照被評核人之實際工作表現狀況評分。</li>
-            <li>為確保評核公平並公正，請勿對外揭露考核分數及評核對象。</li>
-            <li>所有評核表單提交後，資料將無法修改，請務必確認後再提交。</li>
-          </ul>
-          <p>若有疑問，請洽詢人資部。</p>
-        </div>
-        <div class="text-center">
-          <button id="confirmNoticeBtn" class="btn btn-success btn-custom">確認並進入系統</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 控制台 -->
-    <div id="dashboard" class="section">
-      <div class="card p-4 text-center">
-        <h3 id="welcomeDashboard"></h3>
-        <div class="mt-4">
-          <button id="selfAssessmentBtn" class="btn btn-success btn-custom">自我評核</button>
-          <button id="subordinateEvalBtn" class="btn btn-info btn-custom">部門評核</button>
-          <button id="peerEvalBtn" class="btn btn-warning btn-custom">同職評核</button>
-          <button id="designatedEvalBtn" class="btn btn-danger btn-custom">主管評核</button>
-          <button id="supervisorEvalBtn" class="btn btn-primary btn-custom">主管產出評核</button>
-          <button id="employeeEvalBtn" class="btn btn-dark btn-custom">員工產出評核</button>
-          <button id="logoutBtn" class="btn btn-secondary btn-custom">登出</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 自我評核區 -->
-    <div id="selfAssessmentSection" class="section">
-      <div class="card p-4">
-        <h3 class="text-center mb-4">自我評核</h3>
-        <form id="selfAssessmentForm">
-          <div class="form-row mb-3">
-            <div class="col-md-3">
-              <label>員工編號</label>
-              <input type="text" class="form-control" id="empId" name="empId" readonly />
-            </div>
-            <div class="col-md-3">
-              <label>部門</label>
-              <input type="text" class="form-control" id="dept" name="dept" readonly />
-            </div>
-            <div class="col-md-3">
-              <label>中文姓名</label>
-              <input type="text" class="form-control" id="name" name="name" readonly />
-            </div>
-            <div class="col-md-3">
-              <label>職稱</label>
-              <input type="text" class="form-control" id="title" name="title" readonly />
-            </div>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-bordered">
-              <thead class="thead-light">
-                <tr>
-                  <th>評核項目</th>
-                  <th class="text-center">1分</th>
-                  <th class="text-center">2分</th>
-                  <th class="text-center">3分</th>
-                  <th class="text-center">4分</th>
-                  <th class="text-center">5分</th>
-                </tr>
-              </thead>
-              <tbody id="selfAssessmentBody">
-                <!-- 由 initSelfAssessmentTable() 動態產生 -->
-              </tbody>
-            </table>
-          </div>
-          <div class="text-right mb-3">
-            <span>總分： <span id="selfTotalDisplayBottom" class="totalDisplay">0</span></span>
-          </div>
-          <div id="selfSubmitArea">
-            <button type="submit" class="btn btn-success btn-custom btn-block">提交自評</button>
-          </div>
-          <button type="button" class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
-          <div id="selfResult" class="mt-3"></div>
-        </form>
-      </div>
-    </div>
-
-    <!-- 部門評核區 (批次填寫) -->
-    <div id="subordinateEvaluationSection" class="section">
-      <div id="subordinateContainer">
-        <!-- 批次部門評核表單將動態載入於此 -->
-      </div>
-      <button class="btn btn-outline-secondary btn-custom btn-block backToDashboard mt-3">返回控制台</button>
-    </div>
-
-    <!-- 其他區塊同職 / 主管評核…(略), 你可自行延伸) -->
-
-  </div>
-
-  <!-- jQuery, Popper.js 與 Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+  <!-- Placeholder for other dynamic sections (notice, dashboard, evaluations ... ) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    /****************************************
-     * 1) 這裡填你的 Apps Script Web App URL
-     ****************************************/
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxt74WhxN0nsNKiKmWbecWKWTIPvuKeP_1B0MvVkoa02NBjtibE2rtO3n66FwDIEz1j/exec";
+    /* ======= Minimal example of replacing google.script.run when hosting externally =======
+       If you keep this HTML in Apps Script (HtmlService), google.script.run still works.
+       If you plan to host on GitHub Pages, create REST endpoints in Apps Script and call them via fetch().
+    */
+    async function callLogin(){
+      const payload = {
+        account: document.getElementById('loginAccount').value.trim(),
+        password: document.getElementById('loginPassword').value.trim()
+      };
+      // Example URL of your deployed Apps Script Web App (execute-as-me, access-anyone):
+const url = 'https://script.google.com/macros/s/AKfycbyq6a5ngVyC6gtvx6BxofPm2nV8EziRyzuVu9CHS4CUbZdIMQj33V_MRPKwGMMlmOhe/exec';
 
-    // 目前使用者
-    let currentUser = null;
-
-    // 用來顯示／隱藏區塊
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(el => { el.style.display = 'none'; });
-      const target = document.getElementById(sectionId);
-      if (target) target.style.display = 'block';
+      const res = await fetch(url,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      return res.json();
     }
-
-    /*****************************
-     * 2) 用 fetch() 實作後端呼叫
-     *****************************/
-    // 範例：呼叫 loginCheck
-    function callLoginCheck(account, password) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "loginCheck",
-          account: account,
-          password: password
-        })
-      }).then(res => res.json());
-    }
-
-    // 範例：呼叫 isSelfEvaluationCompleted(empId)
-    function callIsSelfEvaluationCompleted(empId) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "isSelfEvaluationCompleted",
-          empId: empId
-        })
-      }).then(res => res.json());
-    }
-
-    // 範例：呼叫 getSelfEvaluationData(empId)
-    function callGetSelfEvaluationData(empId) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "getSelfEvaluationData",
-          empId: empId
-        })
-      }).then(res => res.json());
-    }
-
-    // 範例：呼叫 submitSelfEvaluation(formData)
-    function callSubmitSelfEvaluation(formData) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "submitSelfEvaluation",
-          formData: formData
-        })
-      }).then(res => res.json());
-    }
-
-    // （依此類推，把你其他 getSubordinateEvaluationList / submitSubordinateEvaluation ... 都一樣包裝在這）
-
-
-    /***********************************************
-     * 3) 前端流程：自我評核
-     ***********************************************/
-    const selfItems = [
-      "專業能力", "專業知識", "執行力", "應對能力", "靈活度", "情緒管理",
-      "團隊協作", "溝通協調", "人群關係", "言行品德", "信賴度", "向心力",
-      "團隊榮譽感", "誠實守信", "工作操守", "工作熱忱", "責任感", "積極度",
-      "細心度", "表達能力"
-    ];
-    function initSelfAssessmentTable() {
-      const tbody = document.getElementById("selfAssessmentBody");
-      if (!tbody) return;
-      let html = "";
-      for (let i = 0; i < selfItems.length; i++) {
-        html += "<tr>";
-        html += "<td>" + (i+1) + ". " + selfItems[i] + "</td>";
-        for (let j = 1; j <= 5; j++) {
-          html += `<td class="text-center">
-            <input type="radio" name="selfScore${i+1}" value="${j}" ${j===1 ? "required" : ""}>
-          </td>`;
-        }
-        html += "</tr>";
+    document.getElementById('loginForm').addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const result = await callLogin();
+      if(result.success){
+        // TODO: redirect or build dashboard
+      }else{
+        document.getElementById('loginError').classList.remove('d-none');
       }
-      tbody.innerHTML = html;
-      document.querySelectorAll('input[name^="selfScore"]').forEach(input => {
-        input.addEventListener("change", updateSelfTotal);
-      });
-    }
-    function updateSelfTotal() {
-      let total = 0;
-      for (let i = 0; i < selfItems.length; i++) {
-        const checked = document.querySelector(`input[name="selfScore${i+1}"]:checked`);
-        if (checked) total += parseInt(checked.value);
-      }
-      document.getElementById("selfTotalDisplayBottom").innerText = total;
-    }
-    function loadSelfEvaluationForm() {
-      // 先 check 是否已完成
-      callIsSelfEvaluationCompleted(currentUser.empId).then(completed => {
-        if (completed === true) {
-          // 表示已完成 => 取得已填寫資料，顯示 disable
-          callGetSelfEvaluationData(currentUser.empId).then(data => {
-            // data 就是 getSelfEvaluationData(empId) 回傳的陣列
-            if (!data) return;
-            // data[0] = empId
-            // data[1] = dept
-            // data[2] = name
-            // data[3] = title
-            // data[4~23] = 各評分, data[24] = 總分
-            document.getElementById("empId").value = data[0];
-            document.getElementById("dept").value = data[1];
-            document.getElementById("name").value = data[2];
-            document.getElementById("title").value = data[3];
-            for (let i = 0; i < selfItems.length; i++) {
-              const score = data[i+4];
-              const radios = document.getElementsByName(`selfScore${i+1}`);
-              radios.forEach(radio => {
-                if (radio.value == score) radio.checked = true;
-                radio.disabled = true;
-              });
-            }
-            document.getElementById("selfTotalDisplayBottom").innerText = data[24];
-            document.getElementById("selfResult").innerHTML = `<div class="alert alert-success">自我評核已完成 (總分：${data[24]})</div>`;
-            document.getElementById("selfSubmitArea").style.display = "none";
-            showSection("selfAssessmentSection");
-          });
-        } else {
-          // 尚未填寫 => 填寫基本資料
-          document.getElementById("empId").value = currentUser.empId;
-          document.getElementById("dept").value = currentUser.dept;
-          document.getElementById("name").value = currentUser.name;
-          document.getElementById("title").value = currentUser.title;
-          document.querySelectorAll('input[name^="selfScore"]').forEach(r => {
-            r.checked = false; r.disabled = false;
-          });
-          document.getElementById("selfTotalDisplayBottom").innerText = "0";
-          document.getElementById("selfSubmitArea").style.display = "block";
-          document.getElementById("selfResult").innerHTML = "";
-          showSection("selfAssessmentSection");
-        }
-      });
-    }
-
-    /***********************************************
-     * 4) 初始化 & 事件綁定
-     ***********************************************/
-    function initPage() {
-      // 登入表單
-      const loginForm = document.getElementById("loginForm");
-      loginForm.addEventListener("submit", e => {
-        e.preventDefault();
-        const account = document.getElementById("loginAccount").value;
-        const password = document.getElementById("loginPassword").value;
-        callLoginCheck(account, password).then(result => {
-          if (result.success) {
-            currentUser = result.data;
-            document.getElementById("welcomeDashboard").innerText = "歡迎 " + currentUser.name;
-            showSection("noticeSection");
-          } else {
-            alert(result.message || "登入失敗");
-          }
-        }).catch(err => {
-          console.error(err);
-          alert("無法連線至後端");
-        });
-      });
-
-      // 登出按鈕
-      const logoutBtn = document.getElementById("logoutBtn");
-      logoutBtn.addEventListener("click", () => {
-        currentUser = null;
-        showSection("loginSection");
-      });
-
-      // 考核須知
-      const confirmNoticeBtn = document.getElementById("confirmNoticeBtn");
-      confirmNoticeBtn.addEventListener("click", () => {
-        showSection("dashboard");
-      });
-
-      // 自我評核
-      document.getElementById("selfAssessmentBtn").addEventListener("click", () => {
-        loadSelfEvaluationForm();
-      });
-
-      // 自評表單提交
-      const selfForm = document.getElementById("selfAssessmentForm");
-      selfForm.addEventListener("submit", e => {
-        e.preventDefault();
-        // 檢查必填
-        if (!selfForm.checkValidity()) {
-          selfForm.reportValidity();
-          return;
-        }
-        // 收集
-        const formData = {};
-        formData.empId = document.getElementById("empId").value;
-        formData.dept = document.getElementById("dept").value;
-        formData.name = document.getElementById("name").value;
-        formData.title = document.getElementById("title").value;
-
-        for (let i = 0; i < selfItems.length; i++) {
-          const checked = document.querySelector(`input[name="selfScore${i+1}"]:checked`);
-          formData[`selfScore${i+1}`] = checked ? checked.value : "0";
-        }
-        formData.totalScore = document.getElementById("selfTotalDisplayBottom").innerText;
-
-        // 送到後端
-        callSubmitSelfEvaluation(formData).then(res => {
-          if (res.success) {
-            document.getElementById("selfResult").innerHTML = `<div class="alert alert-success">提交成功！總分：${formData.totalScore}</div>`;
-            // 關閉所有radio
-            document.querySelectorAll('input[name^="selfScore"]').forEach(radio => {
-              radio.disabled = true;
-            });
-            document.getElementById("selfSubmitArea").style.display = "none";
-            showSection("dashboard");
-          } else {
-            alert("提交失敗：" + (res.message || ""));
-          }
-        });
-      });
-
-      // 部門評核 (示範)
-      document.getElementById("subordinateEvalBtn").addEventListener("click", () => {
-        loadBatchDepartmentEvaluations();
-      });
-
-      // 返回控制台
-      document.querySelectorAll(".backToDashboard").forEach(btn => {
-        btn.addEventListener("click", () => {
-          showSection("dashboard");
-        });
-      });
-
-      // 先初始化自我評核那張表格
-      initSelfAssessmentTable();
-    }
-
-    /***********************************************
-     * 5) 其他評核 (以「部門評核」為例)
-     * 這裡只是示範，你可照你原先邏輯去改。
-     ***********************************************/
-    // 先補上 fetch wrapper
-    function callGetSubordinateEvaluationList(evaluatorId) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "getSubordinateEvaluationList",
-          evaluatorId: evaluatorId
-        })
-      }).then(r => r.json());
-    }
-    function callIsSubordinateEvaluationCompleted(evaluatorId, evaluateeId) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "isSubordinateEvaluationCompleted",
-          evaluatorId: evaluatorId,
-          evaluateeId: evaluateeId
-        })
-      }).then(r => r.json());
-    }
-    function callGetSubordinateEvaluationData(evaluatorId, evaluateeId) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "getSubordinateEvaluationData",
-          evaluatorId, evaluateeId
-        })
-      }).then(r => r.json());
-    }
-    function callSubmitSubordinateEvaluation(evaluationList) {
-      return fetch(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "submitSubordinateEvaluation",
-          evaluationList: evaluationList
-        })
-      }).then(r => r.json());
-    }
-
-    const subordinateSubItems = ["專業知識","情緒管理","溝通協調","人群關係","言行品德","信賴度","向心力","團隊榮譽感","工作操守","工作熱忱"];
-    const subordinateScoreOptions = [2,6,8,10];
-
-    function loadBatchDepartmentEvaluations() {
-      callGetSubordinateEvaluationList(currentUser.empId).then(list => {
-        const container = document.getElementById("subordinateContainer");
-        container.innerHTML = "";
-        if (!list || list.length === 0) {
-          container.innerHTML = "<div class='alert alert-info'>無部門評核對象。</div>";
-          showSection("subordinateEvaluationSection");
-          return;
-        }
-        // 動態生成
-        let formHtml = `<form id="batchDepartmentForm">`;
-        list.forEach((item, index) => {
-          formHtml += buildSubordinateEvalCard(item, index);
-        });
-        formHtml += `<button type="submit" class="btn btn-success btn-custom btn-block">提交所有部門評核</button>`;
-        formHtml += `</form>`;
-        container.innerHTML = formHtml;
-
-        // 加入事件
-        list.forEach((item, index) => {
-          const card = container.querySelector(`#deptEvalCard_${index}`);
-          const radioInputs = card.querySelectorAll('input[type="radio"]');
-          radioInputs.forEach(r => {
-            r.addEventListener("change", () => {
-              updateBatchDepartmentTotal(index);
-            });
-          });
-          // 檢查是否已完成
-          callIsSubordinateEvaluationCompleted(item.evaluatorId, item.evaluateeId).then(done => {
-            if (done) {
-              // 已完成 => 取評分紀錄
-              callGetSubordinateEvaluationData(item.evaluatorId, item.evaluateeId).then(record => {
-                if (record) {
-                  for (let i=0; i<subordinateSubItems.length; i++) {
-                    const score = record[i+7]; // record[7~16]
-                    const cardRadios = card.querySelectorAll(`input[name="deptScore_${index}_${i}"]`);
-                    cardRadios.forEach(rr => {
-                      if (rr.value == score) rr.checked = true;
-                      rr.disabled = true;
-                    });
-                  }
-                  card.querySelector(`#deptTotal_${index}`).innerText = record[17];
-                  const statusEl = card.querySelector(".evaluation-status");
-                  statusEl.innerHTML = `<div class='alert alert-success'>部門評核已完成 (總分：${record[17]})</div>`;
-                }
-              });
-            }
-          });
-        });
-
-        // 送出
-        const deptForm = document.getElementById("batchDepartmentForm");
-        deptForm.addEventListener("submit", e => {
-          e.preventDefault();
-          let evaluations = [];
-          list.forEach((item, index) => {
-            // 如果該卡片已完成就不送
-            const statusEl = document.querySelector(`#deptEvalCard_${index} .evaluation-status`);
-            if (statusEl && statusEl.textContent.indexOf("已完成") !== -1) {
-              return; 
-            }
-            // 收集分數
-            const scores = {};
-            for (let i=0; i<subordinateSubItems.length; i++) {
-              const checked = document.querySelector(`input[name="deptScore_${index}_${i}"]:checked`);
-              scores[`部門評核Score${i+1}`] = checked ? checked.value : "";
-            }
-            const total = document.getElementById(`deptTotal_${index}`).innerText || "0";
-            const formData = {
-              evaluatorId: currentUser.empId,
-              evaluatorName: currentUser.name,
-              evaluatorTitle: currentUser.title,
-              evaluateeId: item.evaluateeId,
-              evaluateeDept: item.evaluateeDept,
-              evaluateeName: item.evaluateeName,
-              evaluateeTitle: item.evaluateeTitle,
-              totalScore: total,
-              ...scores
-            };
-            evaluations.push(formData);
-          });
-          if (evaluations.length === 0) {
-            alert("所有部門評核都已完成或無需填寫。");
-            return;
-          }
-          callSubmitSubordinateEvaluation(evaluations).then(res => {
-            if (res.success) {
-              alert("部門評核提交成功！");
-              showSection("dashboard");
-            } else {
-              alert("提交失敗");
-            }
-          });
-        });
-
-        showSection("subordinateEvaluationSection");
-      });
-    }
-
-    function buildSubordinateEvalCard(item, index) {
-      let html = `
-        <div class="card p-4 evaluation-card" id="deptEvalCard_${index}">
-          <h3 class="text-center mb-4">部門評核</h3>
-          <div class="form-row mb-3">
-            <div class="col-md-3">
-              <label>被評核員工編號</label>
-              <input type="text" class="form-control" value="${item.evaluateeId}" readonly />
-            </div>
-            <div class="col-md-3">
-              <label>部門</label>
-              <input type="text" class="form-control" value="${item.evaluateeDept}" readonly />
-            </div>
-            <div class="col-md-3">
-              <label>中文姓名</label>
-              <input type="text" class="form-control" value="${item.evaluateeName}" readonly />
-            </div>
-            <div class="col-md-3">
-              <label>職稱</label>
-              <input type="text" class="form-control" value="${item.evaluateeTitle}" readonly />
-            </div>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-bordered">
-              <thead class="thead-light">
-                <tr>
-                  <th>評核項目</th>`;
-      subordinateScoreOptions.forEach(opt => {
-        html += `<th class="text-center">${opt}分</th>`;
-      });
-      html += `</tr></thead><tbody>`;
-      subordinateSubItems.forEach((subItem, idx) => {
-        html += `<tr>
-          <td>${(idx+1)}. ${subItem}</td>`;
-        subordinateScoreOptions.forEach(opt => {
-          html += `<td class="text-center">
-            <input type="radio" name="deptScore_${index}_${idx}" value="${opt}" required>
-          </td>`;
-        });
-        html += `</tr>`;
-      });
-      html += `</tbody></table></div>
-          <div class="text-right mb-3">
-            <span>總分： <span id="deptTotal_${index}" class="totalDisplay">0</span></span>
-          </div>
-          <div class="evaluation-status"></div>
-        </div>`;
-      return html;
-    }
-
-    function updateBatchDepartmentTotal(index) {
-      let total = 0;
-      for (let i=0; i<subordinateSubItems.length; i++) {
-        const checked = document.querySelector(`input[name="deptScore_${index}_${i}"]:checked`);
-        if (checked) {
-          total += parseInt(checked.value);
-        }
-      }
-      document.getElementById(`deptTotal_${index}`).innerText = total;
-    }
-
-    window.onload = initPage;
+    });
   </script>
 </body>
 </html>
